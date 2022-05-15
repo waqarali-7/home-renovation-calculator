@@ -96,7 +96,7 @@ function Question({
                     sx={{ mt: 2 }}
                     onClick={() => handleChosenAnswer(option, index)}
                   >
-                    {option}
+                    {question.showValue? question.showValue[index] : option}
                   </Button>
                 ))}
               </Box>
@@ -107,7 +107,7 @@ function Question({
           <Typography
             component="h1"
             variant="h4"
-            style={{ color: result != amount ? 
+            style={{ color: (result != amount && !isLeft) ? 
               result < amount ? "green" : "red" :
               ''
              }}

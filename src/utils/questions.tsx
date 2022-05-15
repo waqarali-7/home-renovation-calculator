@@ -2,9 +2,11 @@ export interface QuestionProps {
   id: number;
   question: string;
   options: string[];
+  showValue?: string[];
   prices?: number[];
   next?: number;
   skipTo?: number;
+  showResult?: boolean;
 }
 
 const Category = ["Economy", "Standard", "Premium"];
@@ -55,7 +57,8 @@ export const questions = [
     id: 7,
     question:
       "Do you prefer Ceramic or Marble floor tiling?                                                                                                            ",
-    options: ["Ceramic", "Marble"],
+    options: ["Yes", "No"],
+    showValue: ["Ceramic", "Marble"],
     next: 7,
     skipTo: 8,
   },
@@ -80,6 +83,7 @@ export const questions = [
     question:
       "What is the size of your Bathroom?                                                                                                            ",
     options: ["Small", "Medium", "Large"],
-    prices: [9, 12, 16]
+    prices: [9, 12, 16],
+    showResult: true
   },
 ];

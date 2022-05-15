@@ -58,24 +58,15 @@ const Home = (): JSX.Element => {
         setIsAnswered(false);
         setShowResult(true);
         return;
-      case "Ceramic":
-        setQuestionNum(currentQuestion.next!);
-        setIsAnswered(false);
-        return;
-      case "Marble":
-        setQuestionNum(currentQuestion.skipTo!);
-        setIsAnswered(false);
-        return;
       default:
-        if (questionNum === 9) {
-          calculatePrice(questionNum, optionIndex!);
-          setIsAnswered(false);
-          setShowResult(true);
-          return;
-        }
-        setQuestionNum(currentQuestion.next!);
         calculatePrice(questionNum, optionIndex!);
         setIsAnswered(false);
+   
+        if (currentQuestion.showResult) { 
+          setShowResult(true);
+          return;
+        }  
+        setQuestionNum(currentQuestion.next!);
         return;
     }
   };
