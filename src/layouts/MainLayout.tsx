@@ -4,7 +4,7 @@ export interface LayoutProps {
   children: React.ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps): JSX.Element => {
+const MainLayout = ({ children }: LayoutProps): JSX.Element => {
   return (
     <div>
       <CommonHeader />
@@ -13,4 +13,4 @@ const Layout = ({ children }: LayoutProps): JSX.Element => {
   );
 };
 
-export default Layout;
+export default MainLayout;

@@ -6,7 +6,9 @@ export interface QuestionProps {
   next?: number;
   skipTo?: number;
 }
+
 const Category = ["Economy", "Standard", "Premium"];
+
 export const questions = [
   {
     id: 1,
@@ -78,7 +80,6 @@ export const questions = [
     question:
       "What is the size of your Bathroom?                                                                                                            ",
     options: ["Small", "Medium", "Large"],
-    prices: [9, 12, 16],
-    skipTo: 10,
+    prices: [9, 12, 16]
   },
 ];

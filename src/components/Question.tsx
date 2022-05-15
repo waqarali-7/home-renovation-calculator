@@ -8,22 +8,23 @@ import {
   Button,
 } from "@mui/material";
 import { QuestionProps } from "../utils/questions";
+
 function Question({
   result,
-  isResult,
+  showResult,
   question,
   setIsAnswered,
   setChosenAnwser,
   setOptionIndex,
 }: {
   result: number;
-  isResult: boolean;
+  showResult: boolean;
   question: QuestionProps;
   setIsAnswered: (isAnswer: boolean) => void;
   setChosenAnwser: (chosenAnswer: string) => void;
   setOptionIndex: (optionIndex: number) => void;
 }) {
-  const [amount, setAmount] = React.useState<any>();
+  const [amount, setAmount] = React.useState<any>(0);
   const [isLeft, setIsLeft] = React.useState<boolean>(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,9 +34,10 @@ function Question({
     if (question.id === 1 && option === "No") {
       setIsLeft(true);
       return;
-    } else if (question.id === 1 && amount === undefined) {
+    } else if (question.id === 1 && (isNaN(+amount) || amount <=0)) {
       return;
     }
+
     setOptionIndex(index);
     setChosenAnwser(option);
     setIsAnswered(true);
@@ -58,7 +60,7 @@ function Question({
           alignItems: "center",
         }}
       >
-        {!isResult && !isLeft && (
+        {!showResult && !isLeft && (
           <>
             <Typography component="h1" variant="h4">
               {question.question}
@@ -101,18 +103,16 @@ function Question({
             </FormControl>
           </>
         )}
-        {isResult && (
+        {(showResult || isLeft) && (
           <Typography
             component="h1"
             variant="h4"
-            style={{ color: result < amount ? "green" : "red" }}
+            style={{ color: result != amount ? 
+              result < amount ? "green" : "red" :
+              ''
+             }}
           >
             Result {result}
-          </Typography>
-        )}
-        {isLeft && (
-          <Typography component="h1" variant="h4">
-            Thanks For Visiting Home Renovation Estimation App!
           </Typography>
         )}
       </Box>
