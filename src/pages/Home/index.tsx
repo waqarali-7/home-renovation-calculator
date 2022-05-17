@@ -1,96 +1,96 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { ResultContext } from "../../contexts/ResultContext";
+import { useNavigate } from "react-router";
 import Question from "../../components/Question";
-import { QuestionProps, questions } from "../../utils/questions";
+import { QuestionProps, LocalStateProps } from "../../types";
+import { questions } from "../../utils/questions";
+import { localStateInitial } from "../../utils/initials";
+import { calculatePrice } from "../../functions/home";
 
 const Home = (): JSX.Element => {
-  let initial: QuestionProps = {
-    id: 0,
-    question: "",
-    options: [],
-    prices: [],
-  };
-  const [prices] = useState<number[]>([]);
-  const [questionsBank, setQuestionsBank] = useState<QuestionProps[]>([]);
-  const [currentQuestion, setCurrentQuestion] =
-    useState<QuestionProps>(initial);
-  const [chosenAnwser, setChosenAnwser] = useState<string>("");
-  const [questionNum, setQuestionNum] = useState(0);
-  const [isAnswered, setIsAnswered] = useState<boolean>(false);
-  const [optionIndex, setOptionIndex] = useState<number>();
-  const [showResult, setShowResult] = useState<boolean>(false);
-  const [result, setResult] = useState<number>(0);
+  const navigate = useNavigate();
+  const { contextState, updateContextState, addRows } =
+    useContext(ResultContext);
+  const [state, setState] = useState<LocalStateProps>(localStateInitial);
 
-  // Price Calculation against each question
-  const calculatePrice = (questionIndex: number, answerIndex: number) => {
-    switch (questionIndex) {
-      case 2:
-      case 3:
-      case 4:
-      case 7:
-      case 8:
-        prices.push(questionsBank[questionIndex].prices![answerIndex]);
-        return;
-      case 9:
-        const allPrices = prices.reduce((total, currentValue) => (total = total + currentValue),0);
-        setResult(allPrices * questionsBank[questionIndex].prices![answerIndex]);
-        return;
-      default:
-        return;
+  const { questionNum, tileQuestion, questionsBank, currentQuestion } = state;
+  const { rows, amount } = contextState;
+  const handleChosenAnswer = (chosenAnwser: string, answerIndex: number) => {
+    if (
+      currentQuestion?.isLeft &&
+      (isNaN(+amount) || (amount <= 0 && chosenAnwser === "Yes"))
+    ) {
+      return;
+    } else if (currentQuestion?.isLeft && chosenAnwser === "No") {
+      updateContextState("isLeft", true);
     }
+    nextQuestion(currentQuestion, answerIndex, chosenAnwser);
+  };
+
+  const updateState = (key: string, val: any) => {
+    setState((current: LocalStateProps) => ({
+      ...current,
+      [key]: val,
+    }));
   };
 
   const nextQuestion = (
     currentQuestion: QuestionProps,
-    optionIndex: number
+    answerIndex: number,
+    chosenAnwser: string
   ) => {
     switch (chosenAnwser) {
       case "Yes":
-        setQuestionNum(currentQuestion.next!);
-        setIsAnswered(false);
+        updateState("questionNum", currentQuestion.next!);
         return;
       case "No":
-        if (currentQuestion.skipTo! !== 10) {
-          setQuestionNum(currentQuestion.skipTo!);
-          setIsAnswered(false);
+        if (currentQuestion.skipTo) {
+          updateState("questionNum", currentQuestion.skipTo!);
           return;
         }
-        calculatePrice(questionNum, optionIndex!);
-        setIsAnswered(false);
-        setShowResult(true);
+        updateContextState("showResult", true);
+        navigate("/result");
         return;
       default:
-        calculatePrice(questionNum, optionIndex!);
-        setIsAnswered(false);
-   
-        if (currentQuestion.showResult) { 
-          setShowResult(true);
+        if (currentQuestion.tile) {
+          updateState("tileQuestion", {
+            desc: currentQuestion.desc ?? "",
+            class: currentQuestion.options[answerIndex],
+            price: currentQuestion.prices![answerIndex],
+          });
+          updateState("questionNum", currentQuestion.next!);
           return;
-        }  
-        setQuestionNum(currentQuestion.next!);
+        }
+
+        calculatePrice(
+          currentQuestion,
+          rows,
+          addRows,
+          answerIndex!,
+          tileQuestion
+        );
+
+        if (currentQuestion.showResult) {
+          updateContextState("showResult", true);
+          navigate("/result");
+          return;
+        }
+        updateState("questionNum", currentQuestion.next!);
         return;
     }
   };
 
   useEffect(() => {
-    setQuestionsBank(questions);
-    setCurrentQuestion(questionsBank[questionNum]);
-    if (isAnswered) {
-      nextQuestion(currentQuestion, optionIndex!);
-    }
-  }, [questionsBank, questionNum, isAnswered, optionIndex]);
+    updateState("questionsBank", questions);
+    updateState("currentQuestion", questionsBank[questionNum]);
+  }, [questionsBank, questionNum]);
 
   return (
     <div>
-      {currentQuestion && (
-        <Question
-          result={result}
-          showResult={showResult}
-          question={currentQuestion}
-          setIsAnswered={setIsAnswered}
-          setChosenAnwser={setChosenAnwser}
-          setOptionIndex={setOptionIndex}
-        />
-      )};
+      <Question
+        question={currentQuestion}
+        handleChosenAnswer={handleChosenAnswer}
+      />
     </div>
   );
 };
